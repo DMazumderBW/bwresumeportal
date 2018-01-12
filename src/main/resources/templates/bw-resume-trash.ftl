@@ -134,59 +134,33 @@
                 <div class="col-lg-12">
                     <h1 class="page-header">
                         <i class="fa fa-search fa-1x"></i>
-                        Search Profiles
+                        Search Deleted Profiles
                     </h1>
                 </div>
                 <!-- /.col-lg-12 -->
             </div>
-            <!-- /.row -->
             <div class="row">
-                <div class="col-lg-2">
-                    <form action="/search-resume"  role="form">
-                         <div class="form-group">
-                            <label>Select Skills</label>
-                            <div class="well" style="max-height: 400px; overflow: auto; padding: 3px">
-                                <ul id="skillList" class="list-group checked-list-box">
-                                      <#if skills??>
-                                        <#list skills as skill>
-                                           <li class="list-group-item" skill-id="${skill.skillId?html}">${skill.name?html}</li>
-                                        </#list>
-                                        </#if>
-                                </ul>
-                            </div>
-                        </div>
-                        <input type="hidden" name="selectedSkills" id="selectedSkills"/>
-
-                      <!--   <button class="btn btn-primary col-xs-12" id="get-checked-data">Get Checked Data</button> -->
-                        <button type="submit" class="btn btn-default">Search</button>
-<!--                         <button type="reset" class="btn btn-default">Reset</button>
--->                    </form>
-
-                </div>
-
                 <div class="col-lg-10">
                     <div class="panel-body">
                           <#if (resumes?? && resumes?size >= 1) >
                             <table width="100%" class="table table-striped table-bordered table-hover" id="searchResult-table">
                                 <thead>
                                     <tr>
-
                                         <th class="col-lg-2">Name (Linked Resume)</th>
                                         <th class="col-lg-4">Skills</th>
-                                        <th class="col-lg-2">Upload Date</th>
-                                        <th class="col-lg-1">Upload By</th>
-                                        <th class="col-lg-2">Delete</th>
+                                        <th class="col-lg-1">Uploaded By</th>
+                                        <th class="col-lg-2">Restore</th>
+
                                     </tr>
                                 </thead>
                                 <tbody>
                                 <#list resumes as resume>
                                     <tr class="gradeA">
 
-                                        <td><a href="/download?key=${resume.resumeId}&fileName=${resume.resumeName}">${resume.resumeName}</a></td>
+                                        <td>${resume.resumeName}</td>
                                         <td>${resume.resumeSkills}</td>
-                                        <td>${resume.uploadedTime}</td>
                                         <td>${resume.uploadedBy}</td>
-                                        <td><a href="/delete?key=${resume.resumeId}" onclick="return confirm('Resume will be deleted.') ? true : false;"><p><span class="glyphicon glyphicon-trash"></span></p></a></td>
+                                        <td><a href="/restore?key=${resume.resumeId}">Restore</a></td>
                                     </tr>
                                 </#list>
                                 </tbody>

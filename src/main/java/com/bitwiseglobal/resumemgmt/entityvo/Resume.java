@@ -1,47 +1,49 @@
 package com.bitwiseglobal.resumemgmt.entityvo;
 
+import javax.persistence.*;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-
 @Entity
 public class Resume {
-	
+
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="resume_id", nullable=false, length=20)
 	BigInteger resumeID;
-	
+
 	String name;
-	
+
 	@Column(name="file_path", nullable=false, length=200)
 	String filePath;
-	
+
 	@Column(name="upload_timestamp")
 	Timestamp uploadTimestamp;
 
 	@OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_key")
+	@JoinColumn(name = "user_key")
 	User user;
-	
+
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "resume_skill", joinColumns = @JoinColumn(name = "resume_id", referencedColumnName = "resume_id"), inverseJoinColumns = @JoinColumn(name = "skill_id", referencedColumnName = "skill_id"))
 	Set<Skill> skills;
-	
+
+	//Updates - Aditya More
+	@JoinColumn(name = "soft_delete")
+	String soft_delete;
+
+	@JoinColumn(name = "delete_timestamp")
+	Timestamp deleteTimestamp;
+
+	public Timestamp getDeleteTimestamp() {
+		return deleteTimestamp;
+	}
+
+	public void setDeleteTimestamp(Timestamp deleteTimestamp) {
+		this.deleteTimestamp = deleteTimestamp;
+	}
+
 	public BigInteger getResumeID() {
 		return resumeID;
 	}
@@ -89,5 +91,13 @@ public class Resume {
 	public void setSkills(Set<Skill> skills) {
 		this.skills = skills;
 	}
-	
+
+	public String getSoft_delete() {
+		return soft_delete;
+	}
+
+	public void setSoft_delete(String soft_delete) {
+		this.soft_delete = soft_delete;
+	}
 }
+

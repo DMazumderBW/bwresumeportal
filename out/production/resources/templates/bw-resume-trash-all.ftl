@@ -113,7 +113,7 @@
                             <a href="/search-resume"><i class="fa fa-search fa-fw"></i> Search</a>
                         </li>
                         <li>
-                            <a href="/resume-trash"><p><span class="glyphicon glyphicon-trash"></span>  Trash </p></a>
+                            <a href="/resume-trash"><i class="fa fa-resume-trash" fa-fw"></i> Profile Trash</a>
                         </li>
                         <li class="visible-xs-block">
                             <a href="#" class="logout-link"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
@@ -134,7 +134,7 @@
                 <div class="col-lg-12">
                     <h1 class="page-header">
                         <i class="fa fa-search fa-1x"></i>
-                        Search Profiles
+                        Search Deleted Profiles
                     </h1>
                 </div>
                 <!-- /.col-lg-12 -->
@@ -142,7 +142,7 @@
             <!-- /.row -->
             <div class="row">
                 <div class="col-lg-2">
-                    <form action="/search-resume"  role="form">
+                    <form action="/resume-trash"  role="form">
                          <div class="form-group">
                             <label>Select Skills</label>
                             <div class="well" style="max-height: 400px; overflow: auto; padding: 3px">
@@ -170,23 +170,19 @@
                             <table width="100%" class="table table-striped table-bordered table-hover" id="searchResult-table">
                                 <thead>
                                     <tr>
-
+                                        <th class="col-lg-2">Restore</th>
                                         <th class="col-lg-2">Name (Linked Resume)</th>
                                         <th class="col-lg-4">Skills</th>
-                                        <th class="col-lg-2">Upload Date</th>
-                                        <th class="col-lg-1">Upload By</th>
-                                        <th class="col-lg-2">Delete</th>
+                                        <th class="col-lg-1">Uploaded By</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                 <#list resumes as resume>
                                     <tr class="gradeA">
-
-                                        <td><a href="/download?key=${resume.resumeId}&fileName=${resume.resumeName}">${resume.resumeName}</a></td>
+                                        <td><a href="/restore?key=${resume.resumeId}">Restore</a></td>
+                                        <td>${resume.resumeName}</td>
                                         <td>${resume.resumeSkills}</td>
-                                        <td>${resume.uploadedTime}</td>
                                         <td>${resume.uploadedBy}</td>
-                                        <td><a href="/delete?key=${resume.resumeId}" onclick="return confirm('Resume will be deleted.') ? true : false;"><p><span class="glyphicon glyphicon-trash"></span></p></a></td>
                                     </tr>
                                 </#list>
                                 </tbody>

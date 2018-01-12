@@ -1,12 +1,14 @@
 /**
- * 
+ *
  */
 package com.bitwiseglobal.resumemgmt.controller;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-
+import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.PutObjectResult;
+import com.bitwiseglobal.resumemgmt.S3Wrapper;
+import com.bitwiseglobal.resumemgmt.bd.ResumeMgmtBD;
+import com.bitwiseglobal.resumemgmt.entityvo.Resume;
+import com.bitwiseglobal.resumemgmt.entityvo.Skill;
 import org.apache.tomcat.util.http.fileupload.FileUploadBase.FileSizeLimitExceededException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,14 +22,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.PutObjectResult;
-import com.bitwiseglobal.resumemgmt.S3Wrapper;
-import com.bitwiseglobal.resumemgmt.bd.ResumeMgmtBD;
-import com.bitwiseglobal.resumemgmt.entityvo.Resume;
-import com.bitwiseglobal.resumemgmt.entityvo.Skill;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * @author Chetan Menge
@@ -49,12 +46,22 @@ public class UploadDownloadController {
 	@Value("${maxFileSize}")
 	private String maxFileSize;
 
-	// TODO validate impact of having class level variable
+	// TODO validate impact of having class l
+	// evel variable
 	private Iterable<Skill> skills;
 
-	@RequestMapping(value = "/uploadLanding", method = RequestMethod.GET)
-	public String uploadLanding(Model model) {
-		final String methodName = "UploadController.uploadLanding";
+	@RequestMapping(value = "/uploadFileLanding", method = RequestMethod.GET)
+	public String uploadFileLanding(Model model) {
+		final String methodName = "UploadController.uploadFileLanding";
+
+		model.addAttribute("skills", getSkills());
+
+		return "bw-upload-file";
+	}
+
+	@RequestMapping(value = "/uploadFolderLanding", method = RequestMethod.GET)
+	public String uploadFolderLanding(Model model) {
+		final String methodName = "UploadController.uploadFolderLanding";
 
 		model.addAttribute("skills", getSkills());
 
@@ -68,7 +75,7 @@ public class UploadDownloadController {
 
 			skills = resumeMgmtBD.getSkills();
 			if (skills != null) {
-				
+
 				logger.info(methodName + "Skills found= {}" + skills);
 			} else {
 				logger.debug(methodName + "No skills found");
@@ -77,11 +84,12 @@ public class UploadDownloadController {
 		return skills;
 	}
 
-	@RequestMapping(value = "/upload", method = RequestMethod.POST)
-	public String upload(@RequestParam("file") MultipartFile[] multipartFiles, @RequestParam("skills") String skills,
-			Model model) {
-		final String methodName = "UploadController.upload";
+	@RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
+	public String uploadFile(@RequestParam("file") MultipartFile[] multipartFiles,
+							 @RequestParam("skills") String skills, Model model) {
+		final String methodName = "UploadController.uploadFile";
 
+		//file
 		try {
 
 			String resumeName = "";
@@ -123,16 +131,92 @@ public class UploadDownloadController {
 			logger.error("Exceptioin occured while saving resume details" + e);
 			handleException("DataIntegrityViolationException", model);
 		} catch (Exception e) {
-			logger.error("Exceptioin occured while saving / uploading resume" + e);
+			logger.error("Exception occured while saving / uploading resume" + e);
 			handleException("GenericException", model);
 		}
+
+
+		model.addAttribute("skills", getSkills());
+
+		return "bw-upload-file";
+	}
+
+	@RequestMapping(value = "/uploadFolder", method = RequestMethod.POST)
+	public String uploadFolder(@RequestParam("file") MultipartFile[] multipartFiles,
+							   @RequestParam("skills") String skills, Model model) {
+		final String methodName = "UploadController.uploadFolder";
+
+		boolean filesStored = false;
+		//file
+		try {
+
+			String resumeName = "";
+			for (MultipartFile multipartFile : multipartFiles) {
+
+				resumeName = multipartFile.getOriginalFilename();
+				logger.debug(methodName + "file name=" + multipartFile.getOriginalFilename());
+				logger.debug(methodName + "File size=" + multipartFile.getSize());
+				if (multipartFile.getSize() > getFileSize()) {
+					FileSizeLimitExceededException e = new FileSizeLimitExceededException("LimitExceed", 0, 0);
+					throw e;
+				}
+			}
+
+			logger.debug("Selected skills" + skills);
+			System.out.println("file size - " + multipartFiles.length);
+			Resume resume = null;
+			for(int i = 0; i < multipartFiles.length; i++) {
+				MultipartFile file = multipartFiles[i];
+				System.out.println("UPLOAD FOLDER" + file.getOriginalFilename());
+
+				//getting the file name
+				resumeName = file.getOriginalFilename();
+				resume = resumeMgmtBD.addResume(resumeName, skills);
+				logger.info("Resume details saved sucessfully");
+			}
+
+			if(resume != null) {
+				List<PutObjectResult> list = s3Wrapper.upload(multipartFiles, resume.getResumeID().toString());
+				logger.info("File uploaded successfully" + list.size());
+			}
+				//resumeName = file.getOriginalFilename();
+				//if (!resumeName.isEmpty() && skills != null && !skills.isEmpty()) {
+					// Save resume in db
+
+
+
+					// AWS S3 file upload
+
+					//if(filesStored == false) {
+
+						//filesStored = true;
+					//}
+
+					model.addAttribute("uploadSuccess", "true");
+
+				/*} else {
+					logger.warn("Please select atleast one skill and upload file");
+					handleException("inputValidationFailed", model);
+				} */
+		} catch (FileSizeLimitExceededException e) {
+			logger.error("File exceeds its maximum permitted size" + e);
+			handleException("FileSizeLimitExceededException", model);
+		} catch (DataIntegrityViolationException e) {
+			logger.error("Exceptioin occured while saving resume details" + e);
+			handleException("DataIntegrityViolationException", model);
+		} catch (Exception e) {
+			logger.error("Exception occured while saving / uploading resume" + e);
+			handleException("GenericException", model);
+		}
+
+
 		model.addAttribute("skills", getSkills());
 
 		return "bw-upload";
 	}
 
 	/**
-	 * 
+	 *
 	 * @param key
 	 *            = pass key as file name e.g abc.txt
 	 * @return
@@ -177,23 +261,26 @@ public class UploadDownloadController {
 		model.addAttribute("uploadSuccess", "false");
 
 		switch (message) {
-		case "inputValidationFailed":
-			model.addAttribute(ERROR_MSG, "Please select atleast one skill and upload file");
-			break;
-		case "DataIntegrityViolationException":
-			model.addAttribute(ERROR_MSG, "Resume already exist in system");
-			break;
-		case "GenericException":
-			model.addAttribute(ERROR_MSG, "Exceptioin occured while saving / uploading resume");
-			break;
-		case "FileSizeLimitExceededException":
-			model.addAttribute(ERROR_MSG, "File exceeds its maximum permitted size of " + maxFileSize + "Mb");
-			break;
-		case "FileNotFound":
-			model.addAttribute(ERROR_MSG, "File Not Found");
-			break;
+			case "inputValidationFailed":
+				model.addAttribute(ERROR_MSG, "Please select atleast one skill and upload file");
+				break;
+			case "DataIntegrityViolationException":
+				model.addAttribute(ERROR_MSG, "Resume already exist in system");
+				break;
+			case "GenericException":
+				model.addAttribute(ERROR_MSG, "Exceptioin occured while saving / uploading resume");
+				break;
+			case "FileSizeLimitExceededException":
+				model.addAttribute(ERROR_MSG, "File exceeds its maximum permitted size of " + maxFileSize + "Mb");
+				break;
+			case "FileNotFound":
+				model.addAttribute(ERROR_MSG, "File Not Found");
+				break;
 
 		}
 	}
 
 }
+
+
+

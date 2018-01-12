@@ -1,7 +1,5 @@
 package com.bitwiseglobal.resumemgmt.dto;
 
-import java.util.Comparator;
-
 public class ResumeDisplayDTO implements Comparable<ResumeDisplayDTO>{
 	Integer resumeId;
 	String resumeName;

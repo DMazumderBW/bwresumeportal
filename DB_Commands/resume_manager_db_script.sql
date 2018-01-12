@@ -119,7 +119,34 @@ INSERT INTO resume_portal_db.skill(name) VALUES
 
 #INSERT INTO user(user_id,first_name,middle_name,last_name) VALUES ('dummyid','dummyfirst','dummymiddle','dummylast');
 
+#Soft Delete - Added new field soft_delete with allowed values 'YES' and default value 'NO'
+#Updated by Aditya More
+ALTER TABLE `resume_portal_db`.`resume`
+ADD COLUMN `soft_delete` VARCHAR(45) NULL DEFAULT 'NO' AFTER `user_key`;
+ALTER TABLE `resume_portal_db`.`resume`
+ADD COLUMN `delete_timestamp` DATE NULL AFTER `soft_delete`;
 
+#Skill Matrix Modification
+#Edited by Debkanya <Debkanya.Mazumder@bitwiseglobal.com> and Aditya <Aditya.More@bitwiseglobal.com>
+#technical
+insert into skill(name)  values('K2View');
+insert into skill(name)  values('Data modeler');
+insert into skill(name)  values('Essbase');
+insert into skill(name)  values('ROR');
+insert into skill(name)  values('Web dev with CodeIgniter');
+insert into skill(name)  values('IBM Content Manager');
+insert into skill(name)  values('Mainframe');
+insert into skill(name)  values('Talend');
+insert into skill(name)  values('Hadoop admin');
+insert into skill(name)  values('Hadoop developer');
+insert into skill(name)  values('ETL tester');
+
+#non-technical
+insert into skill(name)  values('Client Principal');
+insert into skill(name)  values('Recruiter');
+insert into skill(name)  values('Office admin');
+insert into skill(name)  values('Benefits Coordinator');
+insert into skill(name)  values('HR Coordinator');
 
 CREATE USER 'bwuser'@'localhost' IDENTIFIED BY 'password';
 GRANT ALL ON resume_portal_db.* TO 'bitwise'@'localhost';

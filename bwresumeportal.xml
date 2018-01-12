@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_bwresumeportal" default="compile.module.bwresumeportal">
+    <dirname property="module.bwresumeportal.basedir" file="${ant.file.module_bwresumeportal}"/>
+
+    <property name="module.jdk.home.bwresumeportal" value="${project.jdk.home}"/>
+    <property name="module.jdk.bin.bwresumeportal" value="${project.jdk.bin}"/>
+    <property name="module.jdk.classpath.bwresumeportal" value="${project.jdk.classpath}"/>
+
+    <property name="compiler.args.bwresumeportal" value="-encoding UTF-8 -source 9 -target 9 ${compiler.args}"/>
+
+    <property name="bwresumeportal.output.dir" value="${module.bwresumeportal.basedir}/classes/production/bwresumeportal"/>
+    <property name="bwresumeportal.testoutput.dir" value="${module.bwresumeportal.basedir}/classes/test/bwresumeportal"/>
+
+    <path id="bwresumeportal.module.bootclasspath">
+        <!-- Paths to be included in compilation bootclasspath -->
+    </path>
+
+    <path id="bwresumeportal.module.production.classpath">
+        <path refid="${module.jdk.classpath.bwresumeportal}"/>
+    </path>
+
+    <path id="bwresumeportal.runtime.production.module.classpath">
+        <pathelement location="${bwresumeportal.output.dir}"/>
+    </path>
+
+    <path id="bwresumeportal.module.classpath">
+        <path refid="${module.jdk.classpath.bwresumeportal}"/>
+        <pathelement location="${bwresumeportal.output.dir}"/>
+    </path>
+
+    <path id="bwresumeportal.runtime.module.classpath">
+        <pathelement location="${bwresumeportal.testoutput.dir}"/>
+        <pathelement location="${bwresumeportal.output.dir}"/>
+    </path>
+
+
+    <patternset id="excluded.from.module.bwresumeportal">
+        <patternset refid="ignored.files"/>
+        <patternset refid="ignored.files"/>
+    </patternset>
+
+    <patternset id="excluded.from.compilation.bwresumeportal">
+        <patternset refid="excluded.from.module.bwresumeportal"/>
+    </patternset>
+
+
+    <target name="compile.module.bwresumeportal" depends="compile.module.bwresumeportal.production,compile.module.bwresumeportal.tests" description="Compile module bwresumeportal"/>
+
+    <target name="compile.module.bwresumeportal.production" depends="register.custom.compilers" description="Compile module bwresumeportal; production classes"/>
+
+    <target name="compile.module.bwresumeportal.tests" depends="register.custom.compilers,compile.module.bwresumeportal.production" description="compile module bwresumeportal; test classes" unless="skip.tests"/>
+
+    <target name="clean.module.bwresumeportal" description="cleanup module">
+        <delete dir="${bwresumeportal.output.dir}"/>
+        <delete dir="${bwresumeportal.testoutput.dir}"/>
+    </target>
+</project>
+
+
+
+
+
